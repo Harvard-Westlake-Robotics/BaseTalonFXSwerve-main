@@ -1,13 +1,9 @@
 package frc.Core;
 
-import edu.wpi.first.units.Time;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.MatchType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Robot;
 
-public class FieldData extends SubsystemBase {
+public class FieldData {
     public static boolean getIsRed() {
         var alliance = DriverStation.getAlliance();
         if (alliance.isPresent()) {
@@ -28,7 +24,7 @@ public class FieldData extends SubsystemBase {
         return DriverStation.isTestEnabled();
     }
 
-    public String getMatchType() {
+    public static String getMatchType() {
         if (DriverStation.getMatchType().equals(MatchType.Qualification)) {
             return "Qualification";
         }
@@ -43,7 +39,7 @@ public class FieldData extends SubsystemBase {
 
     }
 
-    public String getMatchTime() {
+    public static String getMatchTime() {
         int rawTime = (int) DriverStation.getMatchTime();
         int timeMinutes = (int) (rawTime / 60);
         int timeSeconds = rawTime % 60;
@@ -53,7 +49,7 @@ public class FieldData extends SubsystemBase {
         return "0" + timeMinutes + ":" + timeSeconds;
     }
 
-    public String getMatchPeriod() {
+    public static String getMatchPeriod() {
         if (getIsTeleop()) {
             return "Teleop";
         }
@@ -65,13 +61,6 @@ public class FieldData extends SubsystemBase {
         } else {
             return "None";
         }
-    }
-
-    public void periodic() {
-        String matchPeriod = getMatchPeriod();
-        SmartDashboard.putString("Remaining Match Time", getMatchTime());
-        SmartDashboard.putString("Match Period", getMatchPeriod());
-        SmartDashboard.putString("Match Type", getMatchType());
     }
 
 }

@@ -12,8 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.Components.Carriage;
 import frc.Components.Elevator;
 import frc.Components.Shooter;
@@ -70,13 +69,13 @@ public final class Constants {
                 public static final SensorDirectionValue cancoderInvert = chosenModule.cancoderInvert;
 
                 /* Swerve Current Limiting */
-                public static final int angleCurrentLimit = 35;
-                public static final int angleCurrentThreshold = 50;
+                public static final int angleCurrentLimit = 30;
+                public static final int angleCurrentThreshold = 60;
                 public static final double angleCurrentThresholdTime = 0.1;
                 public static final boolean angleEnableCurrentLimit = true;
 
-                public static final int driveCurrentLimit = 40;
-                public static final int driveCurrentThreshold = 80;
+                public static final int driveCurrentLimit = 35;
+                public static final int driveCurrentThreshold = 70;
                 public static final double driveCurrentThresholdTime = 0.1;
                 public static final boolean driveEnableCurrentLimit = true;
 
@@ -94,9 +93,9 @@ public final class Constants {
                 public static final double angleKD = chosenModule.angleKD;
 
                 /* Drive Motor PID Values */
-                public static final double driveKP = 0.12; // TODO: This must be tuned to specific robot
+                public static final double driveKP = 69.420; // TODO: This must be tuned to specific robot
                 public static final double driveKI = 0.0;
-                public static final double driveKD = 0.0;
+                public static final double driveKD = 0.04;
                 public static final double driveKF = 0.0;
 
                 /* Drive Motor Characterization Values From SYSID */
@@ -112,7 +111,7 @@ public final class Constants {
 
                 /* Neutral Modes */
                 public static final NeutralModeValue angleNeutralMode = NeutralModeValue.Coast;
-                public static final NeutralModeValue driveNeutralMode = NeutralModeValue.Brake;
+                public static final NeutralModeValue driveNeutralMode = NeutralModeValue.Coast;
 
                 /* Module Specific Constants */
                 /* Front Left Module - Module 0 */
@@ -183,21 +182,25 @@ public final class Constants {
         public static final class AutoConstants { // TODO: The below constants are used in the example auto, and must be
                                                   // tuned to specific robot
 
-                private static PIDConstants translationConstants = new PIDConstants(1.0, 0.0, 0.0);
-                private static PIDConstants rotationConstants = new PIDConstants(1.0, 0.0, 0.0);
+                private static PIDConstants translationConstants = new PIDConstants(9.1, 0.01, 0.06);
+                private static PIDConstants rotationConstants = new PIDConstants(11, 0, 0.07);
                 private static ReplanningConfig replanningConfig = new ReplanningConfig();
                 private static PDConstant autoAimPDConstants = new PDConstant(0.6, 0.0);
+                private static SendableChooser<String> autoChooser = new SendableChooser<String>();
 
                 public static void initializeAutonomous(TalonFX intake, Elevator elevator, Shooter shooter,
                                 Carriage carriage, frc.robot.subsystems.Swerve drive) {
                         AutoCommands.initializeAutonomousCommands(intake, elevator, shooter, carriage, drive);
-                        SmartDashboard.putStringArray("Auto Selector",
-                                        new String[] { "Short Side", "Center", "New Auto" });
+                        autoChooser.setDefaultOption("No Auto", "No Auto");
+                        autoChooser.addOption("5 Note Auto",
+                                        "5 Note Auton" + (FieldData.getIsRed() ? " Red" : " Blue"));
+                        autoChooser.addOption("Long Side Far Notes",
+                                        "Right Far Note" + (FieldData.getIsRed() ? " Red" : " Blue"));
+                        autoChooser.addOption("Commit Arson", "Commit Arson");
                 }
 
-                public static Command getAutonToRun() {
-                        String autoToRun = SmartDashboard.getString("Auto Selector", "New Auto");
-                        return new PathPlannerAuto(autoToRun);
+                public static PathPlannerAuto getAutonToRun() {
+                        return new PathPlannerAuto(getAutoSelector().getSelected());
                 }
 
                 public static HolonomicPathFollowerConfig getPathFollowerConfig() {
@@ -212,6 +215,10 @@ public final class Constants {
 
                 public static PDConstant getAutoAimPDConstants() {
                         return autoAimPDConstants;
+                }
+
+                public static SendableChooser<String> getAutoSelector() {
+                        return autoChooser;
                 }
         }
 }

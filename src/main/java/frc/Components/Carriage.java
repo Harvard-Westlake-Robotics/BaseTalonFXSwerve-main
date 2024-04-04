@@ -1,5 +1,8 @@
 package frc.Components;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.Devices.BinarySensor;
@@ -9,10 +12,10 @@ import frc.lib.util.PDConstant;
 import frc.lib.util.PIDController;
 
 public class Carriage extends SubsystemBase {
-    Double startPos = null;
+    public Double startPos = null;
     public TalonFX motor;
     public BinarySensor noteSensor;
-    MotionController controller = new PIDController(new PDConstant(4, 0, 3.0));
+    public MotionController controller = new PIDController(new PDConstant(4, 0, 3.0));
     boolean prepShot = false;
     boolean isFiring = false;
     boolean hasNote = true;
@@ -28,6 +31,8 @@ public class Carriage extends SubsystemBase {
     public Carriage(TalonFX motor, BinarySensor noteSensor) {
         this.motor = motor;
         this.noteSensor = noteSensor;
+        motor.setVoltage(0);
+        motor.getRawMotor().setNeutralMode(NeutralModeValue.Brake);
     }
 
     public void intake() {
@@ -39,13 +44,32 @@ public class Carriage extends SubsystemBase {
 
     }
 
+    public void resetMotor() {
+        motor.resetEncoder();
+    }
+
+    public void runMotor() {
+        motor.setVoltage(12);
+        if (hasNote) {
+            hasNote = false;
+        }
+    }
+
     public void stop() {
         motor.setVelocity(0);
     }
 
+    public void intakeSlow() {
+        motor.setVoltage(2);
+    }
+
+    public void outtakeSlow() {
+        motor.setVoltage(-2);
+    }
+
     public void outTake() {
         hasNote = false;
-        motor.setVoltage(-5);
+        motor.setVoltage(-12);
         startPos = null;
     }
 
@@ -72,9 +96,10 @@ public class Carriage extends SubsystemBase {
 
             @Override
             public void end(boolean interrupted) {
-
+                motor.setVoltage(0);
+                stop();
             }
-        }.withTimeout(0.25);
+        }.withTimeout(0.5);
         shoot.schedule();
         hasNote = false;
 
@@ -86,19 +111,21 @@ public class Carriage extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if (startPos != null) {
+            motor.setVoltage(
+                    controller.solve(-(motor.getRevs() - (prepShot ? startPos : startPos)), 0.02));
+            hasNote = true;
+        }
         if (noteSensor.justEnabled()) {
             startPos = motor.getRevs();
             prepShot = false;
         }
-        if (motor.getVoltage() >= 11) {
-            isFiring = true;
-        } else {
-            isFiring = false;
-        }
+        SmartDashboard.putBoolean("Has Note", hasNote);
+        // if (motor.getVoltage() >= 11) {
+        // isFiring = true;
+        // } else
+        // isFiring = false;
+        // }
 
-        if (startPos != null) {
-            motor.setVoltage(controller.solve(-(motor.getRevs() - (prepShot ? startPos + 4 : startPos + 1.5)), 0.02));
-            hasNote = true;
-        }
     }
 }

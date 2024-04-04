@@ -4,10 +4,10 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.util.PathPlannerLogging;
+
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -37,6 +37,7 @@ public class Robot extends TimedRobot {
     // and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+    m_robotContainer.carriage.resetMotor();
   }
 
   /**
@@ -77,12 +78,31 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
+    m_robotContainer.carriage.resetMotor();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
+    m_robotContainer.shooter.setDefaultCommand(m_robotContainer.shooter.run(() -> m_robotContainer.shooter.spin()));
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+    m_robotContainer.s_Swerve.setBrakeMode();
+    m_robotContainer.s_Swerve.field.setRobotPose(
+        PathPlannerAuto.getStaringPoseFromAutoFile(Constants.AutoConstants.getAutoSelector().getSelected()));
+    PathPlannerLogging
+        .setLogActivePathCallback((poses) -> m_robotContainer.s_Swerve.field.getObject("path").setPoses(poses));
+
+  }
+
+  @Override
+  public void autonomousExit() {
+    if (m_robotContainer.shooter.isSpinning()) {
+      m_robotContainer.shooter.toggleSpinning();
+    }
+  }
+
+  @Override
+  public void teleopExit() {
+    m_robotContainer.s_Swerve.setBrakeMode();
   }
 
   /** This function is called periodically during autonomous. */
@@ -92,13 +112,18 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    m_robotContainer.carriage.resetMotor();
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
+      if (m_robotContainer.shooter.isSpinning()) {
+        m_robotContainer.shooter.toggleSpinning();
+      }
     }
+    m_robotContainer.s_Swerve.setCoastMode();
 
   }
 

@@ -3,25 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.7476682934363506,
-        "y": 5.498863634306841
+        "x": 1.32,
+        "y": 5.58
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.2393813006153342,
-        "y": 5.596361216475402
+        "x": 5.872954879812894,
+        "y": 8.232684727477718
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.3953774320850316,
-        "y": 5.498863634306841
+        "x": 8.02467929722184,
+        "y": 7.6947536231254805
       },
       "prevControl": {
-        "x": 3.3953774320850316,
-        "y": 6.498863634306845
+        "x": 8.050550567757531,
+        "y": 7.652418816794352
+      },
+      "nextControl": {
+        "x": 7.896043598355002,
+        "y": 7.9052484030894
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.8912450873334795,
+        "y": 5.449475970177011
+      },
+      "prevControl": {
+        "x": 3.9551135512527424,
+        "y": 7.353734813338573
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,7 +47,12 @@
   "rotationTargets": [
     {
       "waypointRelativePos": 1,
-      "rotationDegrees": -0.5354589855645151,
+      "rotationDegrees": 5.079607860014529,
+      "rotateFast": false
+    },
+    {
+      "waypointRelativePos": 1.85,
+      "rotationDegrees": 0,
       "rotateFast": false
     }
   ],
@@ -39,7 +60,7 @@
   "eventMarkers": [
     {
       "name": "New Event Marker",
-      "waypointRelativePos": 0.0,
+      "waypointRelativePos": 0.6,
       "command": {
         "type": "parallel",
         "data": {
@@ -47,24 +68,7 @@
             {
               "type": "named",
               "data": {
-                "name": "spinShooter"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "name": "New Event Marker",
-      "waypointRelativePos": 0.95,
-      "command": {
-        "type": "parallel",
-        "data": {
-          "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "fireShooter"
+                "name": "intake"
               }
             }
           ]
@@ -73,20 +77,20 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 1.0,
-    "maxAcceleration": 3.0,
-    "maxAngularVelocity": 540.0,
+    "maxVelocity": 5.0,
+    "maxAcceleration": 5.0,
+    "maxAngularVelocity": 640.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 2.4628166759168724,
+    "rotation": 0,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": null,
+  "folder": "5 Note Auton Blue",
   "previewStartingState": {
-    "rotation": -1.6365770416166576,
+    "rotation": 0,
     "velocity": 0
   },
   "useDefaultConstraints": false

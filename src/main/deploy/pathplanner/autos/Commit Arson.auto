@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.7476682934363506,
-      "y": 5.498863634306841
+      "x": 1.2601803825935456,
+      "y": 5.5768617000416905
     },
     "rotation": 0
   },
@@ -14,12 +14,12 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Example Path"
+            "pathName": "commitArson();"
           }
         }
       ]
     }
   },
-  "folder": null,
+  "folder": "Miscellaneous",
   "choreoAuto": false
 }

@@ -6,15 +6,19 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.Components.Carriage;
 import frc.Components.Elevator;
+import frc.Components.LEDStrip;
 import frc.Components.Shooter;
 import frc.Components.Auto.AutoAim;
 import frc.Core.FieldData;
+import frc.Devices.DriverCamera;
 import frc.Devices.Motor.TalonFX;
 import frc.lib.util.BetterPS4;
 import frc.robot.commands.*;
@@ -35,13 +39,13 @@ public class RobotContainer {
     private final Joystick joystick = SubsystemInit.joystick();
 
     /* Subsystems */
-
     private final Elevator elevator = SubsystemInit.elevator();
-    private final Shooter shooter = SubsystemInit.shooter();
+    public final Shooter shooter = SubsystemInit.shooter();
     private final TalonFX intake = SubsystemInit.intake();
-    private final Carriage carriage = SubsystemInit.carriage(SubsystemInit.intakeSensor());
+    public final Carriage carriage = SubsystemInit.carriage(SubsystemInit.intakeSensor());
     public final Swerve s_Swerve = new Swerve();
     private final AutoAim autoAim = new AutoAim(s_Swerve);
+    private final DriverCamera driverCamera = new DriverCamera();
 
     /* Driver Buttons */
     private final JoystickButton moveElevator = new JoystickButton(driver, PS4Controller.Button.kL1.value);
@@ -54,14 +58,15 @@ public class RobotContainer {
     private final JoystickButton climbDownHard = new JoystickButton(joystick, 3);
     private final JoystickButton moveToClimb = new JoystickButton(joystick, 5);
     private final JoystickButton stretchElevator = new JoystickButton(joystick, 6);
+    private final JoystickButton intakeSlow = new JoystickButton(joystick, 12);
+    private final JoystickButton outTakeSlow = new JoystickButton(joystick, 10);
+    private final JoystickButton spinShooterOperator = new JoystickButton(joystick, Joystick.ButtonType.kTrigger.value);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-
         s_Swerve.setDefaultCommand(
-
                 new TeleopSwerve(
                         s_Swerve,
                         () -> -driver.getLeftY(),
@@ -69,7 +74,10 @@ public class RobotContainer {
                         () -> -driver.getRightX(),
                         elevator, shooter, intake, carriage, autoAim));
 
-        AutoBuilder.configureHolonomic(s_Swerve::getPose, s_Swerve::setPose, s_Swerve::getRobotVelocity,
+        AutoBuilder.configureHolonomic(
+                s_Swerve::getPose,
+                s_Swerve::setPose,
+                s_Swerve::getRobotVelocity,
                 s_Swerve::fromChassisSpeeds,
                 Constants.AutoConstants.getPathFollowerConfig(),
                 FieldData::getIsRed, s_Swerve);
@@ -77,8 +85,19 @@ public class RobotContainer {
         // Configure the button bindings
         // System.out.println("im here");
         configureButtonBindings();
+        Constants.AutoConstants.initializeAutonomous(intake, elevator, shooter,
+                carriage, s_Swerve);
+        Shuffleboard.getTab("SmartDashboard").add("Auto Chooser", Constants.AutoConstants.getAutoSelector());
+        SmartDashboard.putBoolean("Field-Oriented Control", true);
+        SmartDashboard.putData("Reset FOC", new Command() {
+            @Override
+            public void initialize() {
+                s_Swerve.zeroHeading();
+            }
+        });
 
-        Constants.AutoConstants.initializeAutonomous(intake, elevator, shooter, carriage, s_Swerve);
+        // SmartDashboard.putData("Auto Chooser",
+        // Constants.AutoConstants.getAutoSelector());
     }
 
     /**
@@ -90,6 +109,17 @@ public class RobotContainer {
      * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
+        outTakeSlow.whileTrue(new InstantCommand(() -> {
+            carriage.outtakeSlow();
+        })).onFalse(new InstantCommand(() -> {
+            carriage.stop();
+        }));
+        intakeSlow.whileTrue(new InstantCommand(() -> {
+            carriage.intakeSlow();
+        })).onFalse(new InstantCommand(() -> {
+            carriage.stop();
+        }));
+        ;
         moveElevatorDownRaw.whileTrue(new Command() {
             public void execute() {
                 elevator.moveRaw(-0.2 * 360);
@@ -114,17 +144,26 @@ public class RobotContainer {
         intakeButton.whileTrue(new Command() {
             @Override
             public void execute() {
-                if (carriage.hasNote() || carriage.noteSensor.justEnabled()) {
-                    carriage.stop();
-                    intake.setVelocity(0);
+                if (carriage.hasNote()) {
+
                 } else if (!carriage.hasNote() && elevator.isDown()) {
-                    intake.setVelocity(0.3 * 360);
+                    intake.setVelocity(2.0 * 360);
                     carriage.intake();
+                } else if (!carriage.hasNote() && !elevator.isDown()) {
+                    carriage.intake();
+                } else {
+                    intake.setVelocity(0);
+                    carriage.stop();
                 }
             }
         }).onFalse(new InstantCommand(() -> {
-            carriage.stop();
-            intake.setVelocity(0);
+            if (intakeSlow.getAsBoolean() || outTakeSlow.getAsBoolean()) {
+
+            } else {
+                carriage.stop();
+                intake.setVelocity(0);
+            }
+
         }));
         moveElevator.onTrue(new InstantCommand(() -> {
             if (elevator.isDown())
@@ -136,15 +175,35 @@ public class RobotContainer {
         moveToClimb.onTrue(new InstantCommand(() -> elevator.moveToClimb()));
         climbDownHard.onTrue(new InstantCommand(() -> elevator.climbDown()));
         stretchElevator.onTrue(new InstantCommand(() -> elevator.stretch()));
-
+        outTakeButton.onTrue(new InstantCommand(() -> {
+            carriage.setHasNote(false);
+        })).onFalse(new InstantCommand(() -> {
+            carriage.setHasNote(false);
+        }));
         outTakeButton.whileTrue(new InstantCommand(() -> {
             carriage.outTake();
             intake.setVoltage(-12);
         })).onFalse(new InstantCommand(() -> {
-            intake.setVoltage(0);
-            carriage.stop();
+            if (intakeSlow.getAsBoolean() || outTakeSlow.getAsBoolean()) {
+
+            } else {
+                carriage.stop();
+                intake.setVelocity(0);
+            }
         }));
         shooterButton.onTrue(new InstantCommand(() -> {
+            if (elevator.isDown()) {
+                shooter.toggleSpinning();
+                if (shooter.isSpinning()) {
+                    carriage.prepShot();
+                    autoAim.setIsAutoAimOn(true);
+                } else {
+                    carriage.unPrepShot();
+                    autoAim.setIsAutoAimOn(false);
+                }
+            }
+        }));
+        spinShooterOperator.onTrue(new InstantCommand(() -> {
             if (elevator.isDown()) {
                 shooter.toggleSpinning();
                 if (shooter.isSpinning()) {

@@ -37,7 +37,7 @@ public class Imu extends SubsystemBase {
         // config.configMountPoseYaw(90); // Set the yaw (Z-axis) orientation offset.
         // config.configMountPosePitch(0); // Set the pitch (Y-axis) orientation offset.
         // config.configMountPoseRoll(0); // Set the roll (X-axis) orientation offset.
-        config.setYaw(90); // Directly set the current yaw position to 90 degrees.
+        // config.setYaw(90); // Directly set the current yaw position to 90 degrees.
         // config.configEnableCompass(false); // Disable the compass if not used.
     }
 

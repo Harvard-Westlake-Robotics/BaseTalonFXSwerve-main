@@ -27,8 +27,8 @@ public class Elevator extends SubsystemBase {
         left.setVelocityPD(constant.clone());
         right.setVelocityPD(constant.clone());
 
-        left.setCurrentLimit(80);
-        right.setCurrentLimit(80);
+        left.setCurrentLimit(120);
+        right.setCurrentLimit(120);
     }
 
     public boolean isDown() {
@@ -122,7 +122,7 @@ public class Elevator extends SubsystemBase {
             var goingDown = target <= 0;
             final var height = getHeight() + 0;
 
-            var slowFac = 20;
+            var slowFac = 30;
             var max = 48 * slowFac;
             if (!goingDown)
                 max *= 1.6;

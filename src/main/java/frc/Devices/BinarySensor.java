@@ -2,18 +2,21 @@ package frc.Devices;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.Core.Time;
 
 public class BinarySensor extends SubsystemBase {
     DigitalInput input;
     Boolean lastState = false;
     boolean justChanged = false;
     final boolean reversed;
+    boolean s;
 
     public BinarySensor(int input, boolean reversed) {
         this.input = new DigitalInput(input);
         this.reversed = reversed;
         if (reversed)
             lastState = true;
+        s = this.input.get();
     }
 
     public BinarySensor(int input) {
@@ -41,9 +44,9 @@ public class BinarySensor extends SubsystemBase {
 
     @Override
     public void periodic() {
-        final boolean s = get();
-
         justChanged = lastState != s;
         lastState = s;
+        s = get();
+
     }
 }

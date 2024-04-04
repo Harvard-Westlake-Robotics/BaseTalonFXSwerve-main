@@ -1,8 +1,11 @@
 package frc.Devices;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -10,6 +13,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.util.Vector2;
 import frc.Components.Auto.Position;
+import frc.Core.Time;
 
 public class LimeLight extends SubsystemBase {
     private NetworkTable masterTable;
@@ -60,6 +64,11 @@ public class LimeLight extends SubsystemBase {
 
     public Pose2d getPose() {
         return new Pose2d(new Translation2d(getRobotX(), getRobotY()), new Rotation2d(getRobotYaw()));
+    }
+
+    public Pose3d getPose3d() {
+        return new Pose3d(new Translation3d(getRobotX(), getRobotY(), getRobotZ()),
+                new Rotation3d(getRobotRoll(), getRobotPitch(), getRobotYaw()));
     }
 
     public boolean getCamMode() {

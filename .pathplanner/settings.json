@@ -1,0 +1,23 @@
+{
+  "robotWidth": 0.9,
+  "robotLength": 0.9,
+  "holonomicMode": true,
+  "pathFolders": [
+    "5 Note Auto Red",
+    "5 Note Auton Blue",
+    "Blue RT Far note",
+    "Left Far Note",
+    "Miscellaneous",
+    "Red RT Far note"
+  ],
+  "autoFolders": [
+    "Blue",
+    "Miscellaneous",
+    "Red"
+  ],
+  "defaultMaxVel": 4.15,
+  "defaultMaxAccel": 3.9,
+  "defaultMaxAngVel": 640.0,
+  "defaultMaxAngAccel": 720.0,
+  "maxModuleSpeed": 4.5
+}

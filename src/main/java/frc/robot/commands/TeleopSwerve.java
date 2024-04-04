@@ -4,11 +4,11 @@ import frc.Components.Carriage;
 import frc.Components.Elevator;
 import frc.Components.Shooter;
 import frc.Components.Auto.AutoAim;
+import frc.Core.FieldData;
 import frc.Devices.Motor.TalonFX;
 import frc.robot.Constants;
 import frc.robot.subsystems.Swerve;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
@@ -50,8 +50,11 @@ public class TeleopSwerve extends Command {
         /* Get Values, Deadband */
         double translationVal = MathUtil.applyDeadband(translationSup.getAsDouble(), Constants.stickDeadband);
         double strafeVal = MathUtil.applyDeadband(strafeSup.getAsDouble(), Constants.stickDeadband);
-        double rotationVal = MathUtil.applyDeadband(rotationSup.getAsDouble(), Constants.stickDeadband)
-                + autoAim.getCorrection();
+        double rotationVal = MathUtil.applyDeadband(rotationSup.getAsDouble(), Constants.stickDeadband);
+        // if (autoAim.getIsAutoAimOn()) {
+        // rotationVal = autoAim.getCorrection();
+        // }
+        // + autoAim.getCorrection();
         isFieldOriented = SmartDashboard.getBoolean("Field-Oriented Control", true);
 
         /* Drive */
@@ -71,5 +74,8 @@ public class TeleopSwerve extends Command {
         } else {
             SmartDashboard.putString("Shooter Spinning", "Shooter Not Spinning");
         }
+        SmartDashboard.putString("Remaining Match Time", FieldData.getMatchTime());
+        SmartDashboard.putString("Match Period", FieldData.getMatchPeriod());
+        SmartDashboard.putString("Match Type", FieldData.getMatchType());
     }
 }

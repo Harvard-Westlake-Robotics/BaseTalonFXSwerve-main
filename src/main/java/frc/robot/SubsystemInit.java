@@ -59,12 +59,15 @@ public class SubsystemInit {
     static TalonFX intake() {
         var intake = new TalonFX(14, false);
         intake.setVelocityPD(new PIDController(new PDConstant(0.1, 0.0)));
+        intake.setCurrentLimit(35);
+
         return intake;
     }
 
     static Carriage carriage(BinarySensor intakeSensor) {
         var motor = new TalonFX(11, true);
         motor.setVelocityPD(new PIDController(new PDConstant(0.1, 0.0)));
+        motor.setCurrentLimit(40);
         return new Carriage(motor, intakeSensor);
     }
 

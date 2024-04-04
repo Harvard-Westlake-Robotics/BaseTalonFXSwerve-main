@@ -112,4 +112,8 @@ public class TalonFX extends AnyMotor {
     public void stop() {
         talon.stopMotor();
     }
+
+    public com.ctre.phoenix6.hardware.TalonFX getRawMotor() {
+        return talon;
+    }
 }
